@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Team Points - Beeone Digital</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <style>
+      :root { --ink: #07111f; --muted: #718096; --line: #e8edf3; --gold: #d99a2b; --silver: #7d8b9d; --bronze: #b96d43; --aqua: #168c91; }
+      body { background: #f4f7f8; color: var(--ink); font-family: "Work Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      .page-shell { min-height: 100vh; padding: 56px 0 72px; background: radial-gradient(circle at 12% 4%, rgba(22,140,145,.12), transparent 32%), linear-gradient(135deg, #f8faf9 0%, #edf3f4 100%); }
+      .team-heading { color: #fff; font-weight: 800; letter-spacing: -.03em; margin-bottom: 10px; font-size: 3.6rem; text-shadow: 0 3px 12px rgba(0,0,0,.22); }
+      .eyebrow { color: #fff !important; text-shadow: 0 2px 8px rgba(0,0,0,.2); }
+      .team-subtitle { color: #617080; font-size: 1.05rem; max-width: 720px; margin: 0 auto 38px; }
+      .standings-board { position: relative; background: linear-gradient(145deg, #172d51 0%, #0d1d39 48%, #071329 100%); border: 1px solid rgba(147,184,229,.3); box-shadow: 0 30px 80px rgba(3,12,30,.4), inset 0 1px rgba(255,255,255,.16); border-radius: 24px; padding: 34px 38px; overflow: hidden; }
+      .standings-board::before { content: ''; position: absolute; width: 280px; height: 280px; top: -165px; right: 12%; border-radius: 50%; background: rgba(150,193,240,.18); filter: blur(3px); }
+      .podium { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1.16fr 1fr; align-items: end; gap: 20px; min-height: 338px; margin-bottom: 38px; }
+      .podium-card { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; text-align: center; padding: 27px 18px 32px; min-height: 244px; border: 1px solid rgba(255,255,255,.25); border-radius: 20px 20px 12px 12px; color: #fff; overflow: hidden; box-shadow: 0 20px 28px rgba(27,48,55,.2), inset 0 1px rgba(255,255,255,.34); transform: translateZ(0); }
+      .podium-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(145deg, rgba(255,255,255,.34), transparent 34%, rgba(0,0,0,.12)); pointer-events: none; }
+      .podium-card::before { content: ''; position: absolute; z-index: 0; width: 160%; height: 34px; bottom: -17px; border-radius: 50%; background: rgba(35,48,55,.25); filter: blur(9px); }
+      .podium-card.first { min-height: 300px; background: linear-gradient(145deg, #efc56d 0%, #db9b27 52%, #bc7413 100%); }
+      .podium-card.second { background: linear-gradient(145deg, #b9c6d2 0%, #8e9eae 52%, #718191 100%); }
+      .podium-card.third { background: linear-gradient(145deg, #dfa37e 0%, #bc7048 52%, #9c4d2d 100%); }
+      .trophy { position: relative; z-index: 1; width: 76px; height: 78px; margin-bottom: 17px; perspective: 500px; transform: rotateX(8deg); filter: drop-shadow(0 7px 4px rgba(0,0,0,.24)); }
+      .trophy > * { position: absolute; display: block; }
+      .award-bowl { left: 17px; top: 8px; z-index: 2; width: 42px; height: 35px; border: 5px solid #080b0c; border-radius: 7px 7px 17px 17px; background: linear-gradient(110deg, #ffe45a 0%, #f7b900 45%, #c87800 100%); box-shadow: inset 5px 0 rgba(255,255,255,.42), inset -5px 0 rgba(112,56,0,.25); transform: perspective(40px) rotateX(-4deg); }
+      .award-handle { top: 12px; z-index: 1; width: 18px; height: 23px; border: 5px solid #080b0c; border-radius: 12px 0 0 12px; background: linear-gradient(90deg, #ffc600, #d98900); }
+      .award-handle.left { left: 5px; }
+      .award-handle.right { right: 5px; transform: scaleX(-1); }
+      .award-stem { left: 31px; top: 40px; z-index: 3; width: 14px; height: 22px; border-left: 5px solid #080b0c; border-right: 5px solid #080b0c; background: linear-gradient(90deg, #f8ca2d, #c98200); }
+      .award-base { left: 21px; top: 60px; z-index: 3; width: 34px; height: 10px; border: 4px solid #080b0c; border-radius: 3px 3px 1px 1px; background: linear-gradient(90deg, #f8ca2d, #c98200); }
+      .award-ribbon { left: 18px; top: 4px; z-index: 1; width: 40px; height: 30px; border: 5px solid #080b0c; border-bottom: 0; border-radius: 8px 8px 0 0; background: linear-gradient(110deg, #35ddff, #008dc5 60%, #00577e); box-shadow: inset 5px 0 rgba(255,255,255,.35); }
+      .award-coin { left: 23px; top: 27px; z-index: 3; width: 30px; height: 30px; border: 4px solid #080b0c; border-radius: 50%; background: radial-gradient(circle at 35% 28%, #fff 0 8%, #9ca9b4 9% 30%, #667581 31% 50%, #bfc9d1 51% 65%, #73818b 66%); box-shadow: inset 3px -3px rgba(0,0,0,.2), 2px 4px 0 rgba(0,0,0,.2); }
+      .trophy-bronze .award-ribbon { background: linear-gradient(110deg, #55e755, #14a82f 60%, #08751d); }
+      .trophy-bronze .award-coin { background: radial-gradient(circle at 35% 28%, #ffcd93 0 8%, #e66d2c 9% 34%, #a8411f 35% 55%, #f0803a 56% 70%, #943117 71%); }
+      .place-label { position: relative; z-index: 1; font-size: 1rem; font-weight: 900; letter-spacing: .2em; text-transform: uppercase; color: rgba(255,255,255,.94); text-shadow: 0 2px 3px rgba(0,0,0,.16); }
+      .podium-team { position: relative; z-index: 1; width: 100%; margin: 14px 0 9px; font-size: 1.58rem; font-weight: 900; letter-spacing: .015em; overflow-wrap: anywhere; text-shadow: 0 2px 3px rgba(0,0,0,.2); }
+      .podium-points { position: relative; z-index: 1; font-size: 1.2rem; font-weight: 800; letter-spacing: .01em; color: rgba(255,255,255,.96); text-shadow: 0 2px 3px rgba(0,0,0,.16); }
+      .podium-card.first .podium-points { color: #fff5d7; }
+      .podium-card.second .podium-points { color: #f5f9fc; }
+      .podium-card.third .podium-points { color: #fff0e8; }
+      .graph-panel { border-top: 1px solid rgba(190,215,241,.2); padding-top: 28px; }
+      .section-label { color: #f7fbff; font-size: 1.1rem; font-weight: 800; margin-bottom: 22px; }
+      .graph-row { display: grid; grid-template-columns: minmax(110px, 1fr) 3fr 62px; align-items: center; gap: 16px; margin: 16px 0; }
+      .graph-team { color: #dce9f7; font-size: .92rem; font-weight: 700; overflow-wrap: anywhere; }
+      .graph-track { height: 13px; background: rgba(210,228,246,.16); border-radius: 999px; overflow: hidden; }
+      .graph-bar { height: 100%; min-width: 8px; border-radius: inherit; background: linear-gradient(90deg, var(--aqua), #55b2a5); animation: grow-bar .8s ease both; transform-origin: left; }
+      .graph-value { color: #ffffff; font-weight: 800; text-align: right; }
+      .empty-state { color: var(--muted); text-align: center; padding: 28px 10px; }
+      .points-note { margin-top: 34px; display: flex; align-items: center; justify-content: center; width: 100%; color: #fff; background: var(--ink); border-radius: 16px; padding: 22px 28px; }
+      .points-note .note-text { font-size: 1.05rem; font-weight: 800; line-height: 1.3; text-transform: uppercase; letter-spacing: .13em; color: #f7c95d; text-align: center; }
+      @keyframes grow-bar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+      @media (max-width: 768px) { .page-shell { padding-top: 36px; } .team-heading { font-size: 2.7rem; } .standings-board { padding: 18px; } .podium { gap: 8px; min-height: 240px; } .podium-card { min-height: 172px; padding: 18px 8px; } .podium-card.first { min-height: 220px; } .trophy { font-size: 1.8rem; } .place-label { font-size: .72rem; letter-spacing: .14em; } .podium-team { font-size: 1.05rem; margin-top: 10px; } .podium-points { font-size: .9rem; } .graph-row { grid-template-columns: 92px 1fr 42px; gap: 9px; } }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/localstorage-sync.js"></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">Beeone Digital</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#ftco-nav" aria-controls="ftco-nav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="oi oi-menu"></span> Menu
+        </button>
+        <div class="collapse navbar-collapse" id="ftco-nav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
+            <li class="nav-item"><a href="speakers.html" class="nav-link">Speakers</a></li>
+            <li class="nav-item"><a href="schedule.html" class="nav-link">Schedule</a></li>
+            <li class="nav-item"><a href="blog.html" class="nav-link">Blog</a></li>
+            <li class="nav-item active"><a href="team-points.html" class="nav-link">Team Points</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <section class="ftco-section page-shell">
+      <div class="container">
+        <div class="row justify-content-center mb-4">
+          <div class="col-lg-8 text-center">
+            <p class="eyebrow text-primary" style="text-transform:uppercase;letter-spacing:.18em;font-weight:700;margin-bottom:16px;">Team Standings</p>
+            <h1 class="team-heading">Team Points</h1>
+          </div>
+        </div>
+
+
+        <div class="row justify-content-center">
+          <div class="col-xl-10">
+            <div class="standings-board">
+              <div id="podium" class="podium"></div>
+              <div class="graph-panel">
+                <div class="section-label">Points leaderboard</div>
+                <div id="points-graph"></div>
+              </div>
+                <div class="points-note">
+                  <div class="note-text" id="callout-text">after 10 results</div>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  <script>
+    (function(){
+      function safeParse(key){ try{ var raw = localStorage.getItem(key); var arr = raw?JSON.parse(raw):[]; return Array.isArray(arr)?arr:[]; }catch(e){ return []; } }
+      function safeParseMeta(){ try{ var raw = localStorage.getItem('eventalk_team_points_meta'); return raw ? JSON.parse(raw) : {}; }catch(e){ return {}; } }
+      function render(){ var rows = safeParse('eventalk_team_points').slice().sort(function(a,b){ return (b.points||0) - (a.points||0); });
+        var podium = document.getElementById('podium'); var graph = document.getElementById('points-graph'); if(!podium || !graph) return;
+        podium.innerHTML = ''; graph.innerHTML = '';
+        if (!rows.length) { podium.innerHTML = '<div class="empty-state" style="grid-column:1 / -1;">No team points recorded yet.</div>'; graph.innerHTML = '<div class="empty-state">Standings will appear here after results are added.</div>'; return; }
+        var places = [{ label: '2nd place', award: 'trophy-medal', className: 'second' }, { label: '1st place', award: 'trophy-cup', className: 'first' }, { label: '3rd place', award: 'trophy-medal trophy-bronze', className: 'third' }];
+        places.forEach(function(place, displayIndex){ var row = rows[displayIndex === 0 ? 1 : displayIndex === 1 ? 0 : 2]; var card = document.createElement('div'); card.className = 'podium-card ' + place.className; var award = place.award === 'trophy-cup' ? '<span class="award-handle left"></span><span class="award-handle right"></span><span class="award-bowl"></span><span class="award-stem"></span><span class="award-base"></span>' : '<span class="award-ribbon"></span><span class="award-coin"></span>'; if(row){ card.innerHTML = '<div class="trophy ' + place.award + '" aria-hidden="true">' + award + '</div><div class="place-label">' + place.label + '</div><div class="podium-team"></div><div class="podium-points"></div>'; card.querySelector('.podium-team').textContent = row.teamName || row.team || 'Unknown'; card.querySelector('.podium-points').textContent = (row.points || 0) + ' points'; } else { card.innerHTML = '<div class="trophy ' + place.award + '" aria-hidden="true">' + award + '</div><div class="place-label">' + place.label + '</div><div class="podium-team">Awaiting team</div>'; } podium.appendChild(card); });
+        var maxPoints = Math.max(rows[0].points || 0, 1);
+        rows.forEach(function(row){ var line = document.createElement('div'); line.className = 'graph-row'; line.innerHTML = '<div class="graph-team"></div><div class="graph-track"><div class="graph-bar"></div></div><div class="graph-value"></div>'; line.querySelector('.graph-team').textContent = row.teamName || row.team || 'Unknown'; line.querySelector('.graph-value').textContent = row.points || 0; line.querySelector('.graph-bar').style.width = Math.max(((row.points || 0) / maxPoints) * 100, 2) + '%'; graph.appendChild(line); });
+      }
+      function applyCallout(){ var data = safeParseMeta(); var calloutEl = document.getElementById('callout-text'); if(calloutEl){ calloutEl.textContent = data.calloutText || 'after 10 results'; } }
+      document.addEventListener('DOMContentLoaded', function(){ render(); applyCallout(); });
+      window.addEventListener('storage', function(e){ if(e.key==='eventalk_team_points' || e.key==='eventalk_team_points_meta'){ render(); applyCallout(); } });
+    })();
+  </script>
+
+  <script src="js/jquery.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  </body>
+</html>
+
+

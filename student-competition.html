@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Student Competition - Beeone Digital</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/localstorage-sync.js"></script>
+    <style>
+      body{min-height:100vh;background:#080d1c;color:#fff;padding:24px;font-family:Arial,sans-serif;}
+      .competition-page{max-width:760px;margin:24px auto;background:#101b3d;border:1px solid #2b3d70;border-radius:8px;padding:28px;}
+      h1{color:#fff;margin-bottom:8px;} .intro{color:#cbd5e1;margin-bottom:24px;}
+      label{color:#fff;font-weight:700;} .form-control{height:48px;margin-bottom:16px;}
+      .program-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:20px;}
+      .program-option{display:flex;align-items:center;gap:8px;padding:12px;background:#172653;border:1px solid #8aa3dc;border-radius:4px;font-weight:400;}
+      .program-option input{width:18px;height:18px;}
+      #competition-message{display:none;margin-top:16px;font-weight:700;}
+    </style>
+  </head>
+  <body>
+    <main class="competition-page">
+      <h1>Student Competition</h1>
+      <p class="intro">Select your team, category, participant, and up to the configured number of programs.</p>
+      <form id="student-competition-form">
+        <label for="student-competition-team">Team</label>
+        <select id="student-competition-team" class="form-control" required><option value="" selected disabled>Select team</option></select>
+        <label for="student-competition-category">Category</label>
+        <select id="student-competition-category" class="form-control" required disabled><option value="" selected disabled>Select category</option></select>
+        <label for="student-competition-participant">Participant</label>
+        <select id="student-competition-participant" class="form-control" required disabled><option value="" selected disabled>Select registered participant</option></select>
+        <label>Select Programs</label>
+        <div id="student-competition-programs" class="program-list"></div>
+        <button class="btn btn-success btn-block" type="submit">Add Competition</button>
+        <div id="competition-message"></div>
+      </form>
+    </main>
+    <script>
+      (function(){
+        var sharedLink = new URLSearchParams(window.location.search).get('shared') === '1';
+        var tenant = new URLSearchParams(window.location.search).get('tenant') || '';
+        var availabilityKey = tenant && tenant !== 'default' ? 'tenant_' + tenant.replace(/[^a-zA-Z0-9_-]/g, '_') + '__student_competition_link_available' : 'student_competition_link_available';
+        function closeDisabledLink(){
+          document.body.innerHTML = '<main style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:Arial,sans-serif;color:#fff;background:#080d1c;"><p>Competition link is no longer available.</p></main>';
+          setTimeout(function(){ window.close(); }, 100);
+        }
+        function linkIsAvailable(){ return localStorage.getItem(availabilityKey) === 'true'; }
+        if(sharedLink && !linkIsAvailable()){ closeDisabledLink(); return; }
+        if(sharedLink) setInterval(function(){ if(!linkIsAvailable()) closeDisabledLink(); }, 500);
+
+        var team = document.getElementById('student-competition-team');
+        var category = document.getElementById('student-competition-category');
+        var participant = document.getElementById('student-competition-participant');
+        var programs = document.getElementById('student-competition-programs');
+        var form = document.getElementById('student-competition-form');
+        var message = document.getElementById('competition-message');
+        var programLimit = parseInt(localStorage.getItem('eventalk_competition_program_limit') || '5', 10);
+        if(!Number.isFinite(programLimit)) programLimit=5;
+        programLimit=Math.max(1,Math.min(20,programLimit));
+        function readArray(key){ try { var value=JSON.parse(localStorage.getItem(key)||'[]'); return Array.isArray(value) ? value : []; } catch(e){ return []; } }
+        function assignedProgramCount(chest){
+          return readArray('eventalk_competitions').filter(function(competition){ return String(competition.chest||'')===String(chest); }).reduce(function(total,competition){ return total+(Array.isArray(competition.programs)?competition.programs.length:0); },0);
+        }
+        function setOptions(select, values, placeholder){
+          select.innerHTML='';
+          var first=document.createElement('option'); first.value=''; first.disabled=true; first.selected=true; first.textContent=placeholder; select.appendChild(first);
+          values.forEach(function(value){ var option=document.createElement('option'); option.value=value; option.textContent=value; select.appendChild(option); });
+        }
+        function showMessage(text,error){ message.textContent=text; message.style.color=error?'#ffb4b4':'#86efac'; message.style.display='block'; }
+        function refreshCategories(){
+          var values=readArray('eventalk_categories');
+          setOptions(category, values, 'Select category');
+          category.disabled=!team.value;
+          participant.disabled=true;
+          setOptions(participant, [], 'Select registered participant');
+          refreshPrograms();
+        }
+        function refreshParticipants(){
+          var selectedTeam=team.value.toLowerCase();
+          var selectedCategory=category.value.toLowerCase();
+          var values=readArray('eventalk_participants').filter(function(item){ return String(item.team||'').toLowerCase()===selectedTeam && String(item.category||'').toLowerCase()===selectedCategory && assignedProgramCount(item.chest)<programLimit; });
+          participant.innerHTML='<option value="" selected disabled>Select registered participant</option>';
+          values.forEach(function(item){ var option=document.createElement('option'); option.value=item.chest||''; option.textContent=(item.name||'')+' ('+(item.chest||'')+')'; option.dataset.name=item.name||''; option.dataset.team=item.team||''; option.dataset.category=item.category||''; participant.appendChild(option); });
+          participant.disabled=!values.length;
+        }
+        function refreshPrograms(){
+          programs.innerHTML='';
+          var selectedCategory=category.value.toLowerCase();
+          readArray('eventalk_programs').filter(function(item){ return selectedCategory && String(item.category||'').toLowerCase()===selectedCategory; }).forEach(function(item){
+            var label=document.createElement('label'); label.className='program-option';
+            label.innerHTML='<input type="checkbox" value="'+String(item.name||'').replace(/"/g,'&quot;')+'"> '+(item.name||'');
+            programs.appendChild(label);
+          });
+          if(!programs.children.length) programs.innerHTML='<span class="text-muted">No programs found for this category.</span>';
+          updateProgramSelectionState();
+        }
+        function updateProgramSelectionState(){
+          var checkboxes=Array.from(programs.querySelectorAll('input[type="checkbox"]'));
+          var selectedCount=checkboxes.filter(function(input){ return input.checked; }).length;
+          checkboxes.forEach(function(input){ input.disabled=!input.checked && selectedCount>=programLimit; });
+        }
+        team.addEventListener('change', refreshCategories);
+        category.addEventListener('change', function(){ refreshParticipants(); refreshPrograms(); });
+        programs.addEventListener('change', updateProgramSelectionState);
+        form.addEventListener('submit', function(event){
+          event.preventDefault();
+          var selected=participant.options[participant.selectedIndex];
+          var selectedPrograms=Array.from(programs.querySelectorAll('input:checked')).map(function(input){ return input.value; });
+          if(!selected || !selected.value || !team.value || !category.value || !selectedPrograms.length){ showMessage('Please select a participant and at least one program.',true); return; }
+          if(selectedPrograms.length>programLimit){ showMessage('This student can have a maximum of '+programLimit+' programs.',true); return; }
+          if(assignedProgramCount(selected.value)+selectedPrograms.length>programLimit){ showMessage('This student can have a maximum of '+programLimit+' programs in total.',true); return; }
+          var competitions=readArray('eventalk_competitions');
+          competitions.push({ participant:selected.dataset.name, chest:selected.value, programs:selectedPrograms, category:category.value, team:team.value });
+          try { localStorage.setItem('eventalk_competitions',JSON.stringify(competitions)); } catch(e){ showMessage('Competition could not be saved.',true); return; }
+          form.reset(); category.disabled=true; participant.disabled=true; programs.innerHTML=''; showMessage('Competition added successfully.',false);
+        });
+        function init(){ setOptions(team,readArray('eventalk_teams'),'Select team'); refreshPrograms(); }
+        if(window._localstorageHydrated) init(); else window.addEventListener('localstorage-hydrated',init,{once:true});
+      })();
+    </script>
+  </body>
+</html>

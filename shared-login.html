@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shared Page Login - Beeone Digital</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/admin-auth.js"></script>
+    <style>
+      body{min-height:100vh;margin:0;display:flex;align-items:center;justify-content:center;padding:24px;background:#080d1c;color:#fff;font-family:Arial,sans-serif;}
+      .shared-login{width:100%;max-width:430px;background:#101b3d;border:1px solid #2b3d70;border-radius:8px;padding:28px;}
+      .shared-login h1{color:#fff;font-size:28px;margin:0 0 10px;}
+      .shared-login p{color:#cbd5e1;margin-bottom:24px;}
+      .shared-login label{color:#fff;font-weight:700;}
+      .shared-login .form-control{height:48px;margin-bottom:16px;}
+      .shared-login button{width:100%;height:48px;font-weight:700;}
+      #shared-login-error{display:none;color:#ffb4b4;margin-top:14px;text-align:center;}
+    </style>
+  </head>
+  <body>
+    <main class="shared-login">
+      <h1 id="shared-login-title">Shared Page Login</h1>
+      <p>Sign in to open the shared event page.</p>
+      <form id="shared-login-form">
+        <label for="shared-username">Username</label>
+        <input id="shared-username" class="form-control" type="text" autocomplete="username" required>
+        <label for="shared-password">Password</label>
+        <input id="shared-password" class="form-control" type="password" autocomplete="current-password" required>
+        <button class="btn btn-primary" type="submit">Open Shared Page</button>
+        <div id="shared-login-error">This shared login is invalid or closed.</div>
+      </form>
+    </main>
+    <script>
+      (function(){
+        var params = new URLSearchParams(window.location.search);
+        var username = params.get('username');
+        var next = params.get('next');
+        var title = document.getElementById('shared-login-title');
+        if (next === 'green-room.html') title.textContent = 'Green Room Login';
+        if (next === 'judge-mark-entry.html') title.textContent = 'Judge Mark Entry Login';
+        if (username) document.getElementById('shared-username').value = username;
+        document.getElementById('shared-login-form').addEventListener('submit', function(event){
+          event.preventDefault();
+          var error = document.getElementById('shared-login-error');
+          var loginUsername = document.getElementById('shared-username').value.trim();
+          var password = document.getElementById('shared-password').value;
+          Promise.resolve(window.adminAuth.login(loginUsername, password)).then(function(success){
+            if(!success){ error.style.display = 'block'; return; }
+            var destination = new URL(next === 'green-room.html' || next === 'judge-mark-entry.html' ? next : 'admin.html', window.location.href);
+            var tenant = params.get('tenant');
+            var access = params.get('access');
+            if (tenant) destination.searchParams.set('tenant', tenant);
+            if (access) destination.searchParams.set('access', access);
+            if (next === 'green-room.html' || next === 'judge-mark-entry.html') destination.searchParams.set('shared', '1');
+            window.location.href = destination.href;
+          }).catch(function(){ error.style.display = 'block'; });
+        });
+      })();
+    </script>
+  </body>
+</html>

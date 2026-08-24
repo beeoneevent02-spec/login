@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Share Public Home Page - Beeone Digital</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Work+Sans:100,200,300,400,500,600,700,800,900" rel="stylesheet">
+    <link rel="stylesheet" href="css/open-iconic-bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/localstorage-sync.js"></script>
+    <script src="js/admin-auth.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+      body{min-height:100vh;background:#0f1324;}
+      .share-page{padding:110px 15px 60px;}
+      .share-panel{max-width:900px;margin:0 auto;padding:34px;border-radius:14px;background:#fff;box-shadow:0 18px 45px rgba(0,0,0,.18);}
+      .share-panel h1{margin-bottom:10px;color:#222;font-size:32px;}
+      .share-panel p{color:#666;margin-bottom:24px;}
+      .share-link-row{display:flex;gap:10px;}
+      .share-link-row input{flex:1;min-width:0;}
+      .share-qr{display:flex;justify-content:center;margin:24px auto 0;min-height:180px;}
+      .share-qr canvas,.share-qr img{padding:10px;background:#fff;border:1px solid #e5e7eb;}
+      .qr-actions{display:flex;justify-content:center;gap:10px;margin-top:16px;}
+      .share-actions{display:flex;justify-content:space-between;align-items:center;margin-top:24px;}
+      .share-actions a{color:#555;}
+      @media(max-width:575px){
+        .share-page{padding-top:80px;}
+        .share-panel{padding:24px 18px;}
+        .share-link-row{flex-direction:column;}
+        .share-actions{align-items:flex-start;flex-direction:column;gap:14px;}
+      }
+    </style>
+    <link rel="stylesheet" href="css/admin-theme.css">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark ftco_navbar bg-dark ftco-navbar-light" id="ftco-navbar">
+      <div class="container">
+        <a class="navbar-brand" href="admin.html">Beeone Digital</a>
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item"><a href="index.html" class="nav-link"><i class="fa fa-home"></i> Home</a></li>
+          <li class="nav-item"><a href="admin.html" class="nav-link"><i class="fa fa-tachometer-alt"></i> Dashboard</a></li>
+          <li class="nav-item"><a href="#" id="logoutLink" class="nav-link">Logout</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main class="share-page">
+      <section class="share-panel">
+        <h1><i class="fa fa-share-alt"></i> Share Public Home Page</h1>
+        <p>Share this link or scan the QR code to let people view only this account's event data.</p>
+        <div class="share-link-row">
+          <input id="publicShareLink" class="form-control" type="text" readonly aria-label="Public home page link">
+          <button type="button" class="btn btn-primary" id="copyPublicShareLink"><i class="fa fa-copy"></i> Copy Link</button>
+          <a class="btn btn-outline-primary" id="openPublicShareLink" target="_blank" rel="noopener"><i class="fa fa-external-link-alt"></i> Open</a>
+        </div>
+        <div class="share-qr" id="publicShareQr" aria-label="QR code for public home page"></div>
+        <div class="qr-actions">
+          <button type="button" class="btn btn-primary" id="refreshPublicShareQr"><i class="fa fa-sync-alt"></i> Refresh QR</button>
+          <button type="button" class="btn btn-outline-primary" id="downloadPublicShareQr"><i class="fa fa-download"></i> Download QR</button>
+        </div>
+        <div class="share-actions">
+          <a href="admin.html"><i class="fa fa-arrow-left"></i> Back to dashboard</a>
+          <span class="text-muted">Public view contains this account's data only.</span>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      (function(){
+        if(!window.adminAuth || !window.adminAuth.isAuthenticated || !window.adminAuth.isAuthenticated()){
+          window.location.href = 'login.html';
+          return;
+        }
+        var session = window.adminAuth.getSession ? window.adminAuth.getSession() : null;
+        var eventDetails = {};
+        try { eventDetails = JSON.parse(localStorage.getItem('eventalk_event_title') || '{}') || {}; } catch(e) {}
+        var eventSlug = String(eventDetails.programName || 'event')
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '') || 'event';
+        var shareLink = new URL('index.html', window.location.href);
+        shareLink.searchParams.set('event', eventSlug);
+        shareLink.searchParams.set('tenant', session && session.tenantId ? session.tenantId : 'default');
+        var shareLinkValue = shareLink.href;
+        var shareInput = document.getElementById('publicShareLink');
+        var openShareLink = document.getElementById('openPublicShareLink');
+        var shareQr = document.getElementById('publicShareQr');
+        if(shareInput) shareInput.value = shareLinkValue;
+        if(openShareLink) openShareLink.href = shareLinkValue;
+        function renderQr(){
+          if(!shareQr || !window.QRCode) return;
+          shareQr.innerHTML = '';
+          new QRCode(shareQr, { text: shareLinkValue, width: 240, height: 240, correctLevel: QRCode.CorrectLevel.M });
+        }
+        renderQr();
+        var refreshQr = document.getElementById('refreshPublicShareQr');
+        if(refreshQr) refreshQr.addEventListener('click', renderQr);
+        var downloadQr = document.getElementById('downloadPublicShareQr');
+        if(downloadQr) downloadQr.addEventListener('click', function(){
+          var qrCanvas = shareQr && shareQr.querySelector('canvas');
+          var qrImage = shareQr && shareQr.querySelector('img');
+          var downloadUrl = qrCanvas ? qrCanvas.toDataURL('image/png') : (qrImage ? qrImage.src : '');
+          if(!downloadUrl) return;
+          var link = document.createElement('a');
+          link.href = downloadUrl;
+          link.download = 'public-home-page-qr.png';
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+        });
+        var copyShareLink = document.getElementById('copyPublicShareLink');
+        if(copyShareLink) copyShareLink.addEventListener('click', function(){
+          if(navigator.clipboard && navigator.clipboard.writeText){
+            navigator.clipboard.writeText(shareLinkValue).then(function(){
+              copyShareLink.innerHTML = '<i class="fa fa-check"></i> Copied';
+              setTimeout(function(){ copyShareLink.innerHTML = '<i class="fa fa-copy"></i> Copy Link'; }, 1600);
+            });
+          } else if(shareInput){
+            shareInput.select();
+            document.execCommand('copy');
+          }
+        });
+        document.getElementById('logoutLink').addEventListener('click', function(e){
+          e.preventDefault();
+          window.adminAuth.logout();
+          window.location.href = 'login.html';
+        });
+      })();
+    </script>
+  </body>
+</html>

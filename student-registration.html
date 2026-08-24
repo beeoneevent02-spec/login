@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Student Registration - Beeone Digital</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.0.0/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/localstorage-sync.js"></script>
+    <style>
+      body{min-height:100vh;background:#080d1c;color:#fff;padding:24px;font-family:Arial,sans-serif;}
+      .registration-page{max-width:620px;margin:24px auto;background:#101b3d;border:1px solid #2b3d70;border-radius:8px;padding:28px;}
+      h1{color:#fff;margin-bottom:8px;} .intro{color:#cbd5e1;margin-bottom:24px;}
+      label{color:#fff;font-weight:700;} .form-control{height:48px;margin-bottom:16px;}
+      .photo-preview{display:none;max-width:120px;max-height:120px;margin:0 0 16px;border-radius:6px;object-fit:cover;}
+      #registration-message{display:none;margin-top:16px;font-weight:700;}
+    </style>
+  </head>
+  <body>
+    <main class="registration-page">
+      <h1>Student Registration</h1>
+      <p class="intro">Enter your details to register for this event.</p>
+      <form id="student-registration-form">
+        <label for="student-chest">Chest Number</label>
+        <input id="student-chest" class="form-control" type="number" min="1" required>
+        <label for="student-name">Name</label>
+        <input id="student-name" class="form-control" type="text" required>
+        <label for="student-category">Category</label>
+        <select id="student-category" class="form-control" required><option value="" selected disabled>Select category</option></select>
+        <label for="student-team">Team (optional)</label>
+        <select id="student-team" class="form-control"><option value="">No team</option></select>
+        <label for="student-photo">Photo (optional)</label>
+        <input id="student-photo" class="form-control" type="file" accept="image/*">
+        <img id="student-photo-preview" class="photo-preview" alt="Photo preview">
+        <button class="btn btn-success btn-block" type="submit">Submit Registration</button>
+        <div id="registration-message"></div>
+      </form>
+    </main>
+    <script>
+      (function(){
+        var sharedLink = new URLSearchParams(window.location.search).get('shared') === '1';
+        var tenant = new URLSearchParams(window.location.search).get('tenant') || '';
+        var availabilityKey = tenant && tenant !== 'default' ? 'tenant_' + tenant.replace(/[^a-zA-Z0-9_-]/g, '_') + '__student_registration_link_available' : 'student_registration_link_available';
+        function closeDisabledLink() {
+          document.body.innerHTML = '<main style="display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:Arial,sans-serif;color:#fff;background:#080d1c;"><p>Registration link is no longer available.</p></main>';
+          setTimeout(function () { window.close(); }, 100);
+        }
+        function linkIsAvailable() {
+          return localStorage.getItem(availabilityKey) === 'true';
+        }
+        if (sharedLink && !linkIsAvailable()) {
+          closeDisabledLink();
+          return;
+        }
+        if (sharedLink) {
+          setInterval(function () {
+            if (!linkIsAvailable()) closeDisabledLink();
+          }, 500);
+        }
+        var category = document.getElementById('student-category');
+        var team = document.getElementById('student-team');
+        var form = document.getElementById('student-registration-form');
+        var message = document.getElementById('registration-message');
+        var photoInput = document.getElementById('student-photo');
+        var photoPreview = document.getElementById('student-photo-preview');
+        var photoData = null;
+        function readArray(key){ try { var value = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(value) ? value : []; } catch(e) { return []; } }
+        function fillOptions(){
+          readArray('eventalk_categories').forEach(function(value){ var option = document.createElement('option'); option.value = value; option.textContent = value; category.appendChild(option); });
+          readArray('eventalk_teams').forEach(function(value){ var option = document.createElement('option'); option.value = value; option.textContent = value; team.appendChild(option); });
+        }
+        function showMessage(text, error){ message.textContent = text; message.style.color = error ? '#ffb4b4' : '#86efac'; message.style.display = 'block'; }
+        function buildQrValue(chest, name, selectedCategory, selectedTeam){
+          var parts = ['Beeone Event', 'Chest: ' + chest, 'Name: ' + name, 'Category: ' + selectedCategory];
+          if(selectedTeam) parts.push('Team: ' + selectedTeam);
+          return parts.join(' | ');
+        }
+        function generateQrCode(value){
+          return new Promise(function(resolve){
+            if(!window.QRCode){ resolve(null); return; }
+            QRCode.toDataURL(value, { width: 180, margin: 1, color: { dark: '#111827', light: '#ffffff' }, errorCorrectionLevel: 'M' }, function(error, url){ resolve(error ? null : url); });
+          });
+        }
+        if(photoInput) photoInput.addEventListener('change', function(){
+          var file = photoInput.files && photoInput.files[0];
+          if(!file){ photoData = null; photoPreview.style.display = 'none'; return; }
+          var reader = new FileReader(); reader.onload = function(event){ photoData = event.target.result; photoPreview.src = photoData; photoPreview.style.display = 'block'; }; reader.readAsDataURL(file);
+        });
+        form.addEventListener('submit', function(event){
+          event.preventDefault();
+          var submitButton = form.querySelector('button[type="submit"]');
+          var chest = String(document.getElementById('student-chest').value || '').trim();
+          var name = document.getElementById('student-name').value.trim();
+          var selectedCategory = category.value;
+          var selectedTeam = team.value;
+          var participants = readArray('eventalk_participants');
+          if(participants.some(function(item){ return String(item.chest) === chest; })){ showMessage('This chest number is already registered.', true); return; }
+          if(submitButton) submitButton.disabled = true;
+          generateQrCode(buildQrValue(chest, name, selectedCategory, selectedTeam)).then(function(qrCode){
+            participants.push({ chest: chest, name: name, category: selectedCategory, team: selectedTeam, photo: photoData, qrCode: qrCode });
+            try { localStorage.setItem('eventalk_participants', JSON.stringify(participants)); } catch(e) { showMessage('Registration could not be saved.', true); return; }
+            form.reset(); photoData = null; photoPreview.style.display = 'none'; showMessage(qrCode ? 'Registration submitted and QR code created.' : 'Registration submitted. QR code could not be created.', !qrCode);
+          }).catch(function(){ showMessage('Registration could not be completed.', true); }).then(function(){ if(submitButton) submitButton.disabled = false; });
+        });
+        (function waitForSync(){ if(window._localstorageHydrated){ fillOptions(); return; } window.addEventListener('localstorage-hydrated', fillOptions, { once: true }); })();
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Beeone Digital</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <style>
+      :root{--ink:#10182f;--muted:#6c7488;--accent:#ff9d3d;--accent-deep:#f35d56;--line:#e5e8ef;}
+      *{box-sizing:border-box;}
+      body{min-height:100vh;margin:0;display:flex;align-items:center;justify-content:center;padding:28px;background:#0b1023;font-family:'DM Sans',sans-serif;color:var(--ink);}
+      body:before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 12% 10%,rgba(255,157,61,.22),transparent 24%),radial-gradient(circle at 88% 90%,rgba(76,111,255,.24),transparent 28%);pointer-events:none;}
+      .login-shell{position:relative;z-index:1;display:grid;grid-template-columns:minmax(280px,.9fr) minmax(420px,1.1fr);width:min(980px,100%);min-height:650px;overflow:hidden;border:1px solid rgba(255,255,255,.12);border-radius:28px;background:#fff;box-shadow:0 32px 90px rgba(0,0,0,.34);}
+      .brand-panel{position:relative;display:flex;flex-direction:column;justify-content:space-between;padding:48px;background:linear-gradient(145deg,#161f42 0%,#0d132b 58%,#26366f 100%);color:#fff;overflow:hidden;}
+      .brand-panel:after{content:'';position:absolute;width:250px;height:250px;right:-90px;bottom:-75px;border:1px solid rgba(255,255,255,.16);border-radius:50%;box-shadow:0 0 0 28px rgba(255,255,255,.035),0 0 0 58px rgba(255,255,255,.025);}
+      .brand-mark{position:relative;z-index:1;display:flex;align-items:center;font-family:'Manrope',sans-serif;font-size:20px;font-weight:800;letter-spacing:.02em;}
+      .brand-copy{position:relative;z-index:1;max-width:310px;}
+      .brand-copy .eyebrow{margin-bottom:18px;color:#ffbf78;font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;}
+      .brand-copy h2{margin:0 0 16px;font-family:'Manrope',sans-serif;font-size:39px;line-height:1.08;color:#fff;}
+      .brand-copy p{margin:0;color:rgba(255,255,255,.7);font-size:15px;line-height:1.7;}
+      .brand-footer{position:relative;z-index:1;color:rgba(255,255,255,.52);font-size:12px;letter-spacing:.03em;}
+      .auth-panel{padding:48px 54px;background:#fff;overflow:auto;}
+      .auth-header{margin-bottom:28px;}
+      .auth-header h1{margin:0 0 8px;font-family:'Manrope',sans-serif;font-size:31px;font-weight:800;letter-spacing:-.02em;}
+      .auth-header p{margin:0;color:var(--muted);font-size:14px;}
+      .form-section{padding:22px 0 26px;border-bottom:1px solid var(--line);}
+      .form-section:last-child{padding-bottom:0;border-bottom:0;}
+      .form-section h2{margin:0 0 17px;font-family:'Manrope',sans-serif;font-size:17px;font-weight:700;}
+      .auth-switcher{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;padding:5px;border-radius:12px;background:#f1f3f8;}
+      .auth-switcher button{height:42px;border:0;border-radius:8px;background:transparent;color:#737b8e;font-weight:700;cursor:pointer;}
+      .auth-switcher button.active{background:#fff;color:#4f63e8;box-shadow:0 3px 10px rgba(16,24,47,.1);}
+      .form-section[hidden]{display:none;}
+      .form-group{margin-bottom:16px;}
+      .form-group label{display:block;margin-bottom:7px;color:#40485c;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;}
+      .form-control{height:47px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:#f9fafc;color:var(--ink);font-size:14px;box-shadow:none;}
+      .form-control:focus{border-color:#788dff;background:#fff;box-shadow:0 0 0 4px rgba(76,111,255,.11);}
+      .form-control::placeholder{color:#a1a8b8;}
+      .login-card .btn,.auth-panel .btn{width:100%;height:47px;border-radius:10px;font-weight:700;letter-spacing:.01em;}
+      .btn-primary{border:0;background:linear-gradient(135deg,#ff9d3d,#f35d56);box-shadow:0 12px 22px rgba(243,93,86,.2);}
+      .btn-primary:hover{border:0;background:linear-gradient(135deg,#f79131,#ec514f);}
+      .btn-outline-primary{border:1px solid #aab6ff;color:#5368e8;background:#fff;}
+      .btn-outline-primary:hover{border-color:#5368e8;background:#f3f5ff;color:#4054d0;}
+      .owner-review{display:block;width:100%;margin-top:26px;text-align:center;}
+      .login-error{display:none;margin-top:10px;color:#d44747;font-size:13px;text-align:center;}
+      @media(max-width:760px){
+        body{padding:14px;align-items:flex-start;}
+        .login-shell{display:block;min-height:0;margin:12px 0;border-radius:22px;}
+        .brand-panel{min-height:260px;padding:30px;}
+        .brand-copy h2{font-size:30px;}
+        .brand-footer{margin-top:28px;}
+        .auth-panel{padding:32px 26px;}
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-shell">
+      <aside class="brand-panel">
+        <div class="brand-mark">Beeone Digital</div>
+        <div class="brand-copy">
+          <div class="eyebrow">Event operations, refined</div>
+          <h2>Run every moment with confidence.</h2>
+          <p>Manage registrations, programs, results, schedules, and public event pages from one focused workspace.</p>
+        </div>
+        <div class="brand-footer">Secure workspace access</div>
+      </aside>
+      <main class="auth-panel">
+        <header class="auth-header">
+          <h1>Welcome back</h1>
+          <p>Sign in to open your event control panel.</p>
+        </header>
+        <div class="auth-switcher" role="tablist" aria-label="Account access">
+          <button type="button" id="loginViewButton" class="active" role="tab" aria-selected="true">Login</button>
+          <button type="button" id="registerViewButton" role="tab" aria-selected="false">Register</button>
+        </div>
+        <section id="loginSection" class="form-section" role="tabpanel">
+          <h2>Admin Login</h2>
+          <form id="loginForm">
+            <div class="form-group">
+              <label for="adminUsername">Username</label>
+              <input id="adminUsername" class="form-control" type="text" placeholder="Enter your username" autocomplete="username" required>
+            </div>
+            <div class="form-group">
+              <label for="adminPassword">Password</label>
+              <input id="adminPassword" class="form-control" type="password" placeholder="Enter your password" autocomplete="current-password" required>
+            </div>
+            <button class="btn btn-primary" type="submit" id="loginButton"><i class="fas fa-arrow-right"></i> Sign In</button>
+            <div class="login-error" id="loginError">Incorrect username or password. Try again.</div>
+          </form>
+        </section>
+        <section id="registerSection" class="form-section" role="tabpanel" hidden>
+          <h2>Create an event account</h2>
+          <form id="registerForm">
+            <div class="form-group"><label for="tenantName">Name</label><input id="tenantName" class="form-control" required></div>
+            <div class="form-group"><label for="tenantPlace">Place</label><input id="tenantPlace" class="form-control" required></div>
+            <div class="form-group"><label for="tenantWhatsapp">WhatsApp number</label><input id="tenantWhatsapp" class="form-control" type="tel" required></div>
+            <div class="form-group"><label for="tenantAccountType">Account type</label><select id="tenantAccountType" class="form-control" required><option value="free">Free</option><option value="standard">Standard</option><option value="premium">Premium</option></select></div>
+            <div class="form-group"><label for="tenantUsername">Username</label><input id="tenantUsername" class="form-control" autocomplete="username" required></div>
+            <div class="form-group"><label for="tenantPassword">Password</label><input id="tenantPassword" class="form-control" type="password" minlength="6" autocomplete="new-password" required></div>
+            <button class="btn btn-outline-primary" type="submit" id="registerButton"><i class="fas fa-user-plus"></i> Register and Sign In</button>
+            <div class="login-error" id="registerError"></div>
+          </form>
+        </section>
+        <a href="tenant-approvals.html" class="btn btn-outline-secondary btn-sm owner-review"><i class="fas fa-user-shield"></i> Owner: Review Registered Users</a>
+      </main>
+    </div>
+
+    <script src="js/admin-auth.js"></script>
+    <script>
+      (function(){
+        var legacyParams = new URLSearchParams(window.location.search);
+        var legacyNext = legacyParams.get('next');
+        if (legacyParams.get('shared') === '1' && (legacyNext === 'green-room.html' || legacyNext === 'judge-mark-entry.html')) {
+          var sharedLogin = new URL('shared-login.html', window.location.href);
+          legacyParams.forEach(function(value, key){ sharedLogin.searchParams.set(key, value); });
+          window.location.replace(sharedLogin.href);
+        }
+      })();
+      if(window.adminAuth && window.adminAuth.isAuthenticated && window.adminAuth.isAuthenticated()){
+        var existingParams = new URLSearchParams(window.location.search);
+        var existingNext = existingParams.get('next');
+        if (existingNext === 'green-room.html' || existingNext === 'judge-mark-entry.html') {
+          var existingDestination = new URL(existingNext, window.location.href);
+          if (existingParams.get('tenant')) existingDestination.searchParams.set('tenant', existingParams.get('tenant'));
+          if (existingParams.get('shared') === '1') existingDestination.searchParams.set('shared', '1');
+          window.location.href = existingDestination.href;
+        } else {
+          window.location.href = 'admin.html';
+        }
+      }
+      var loginParams = new URLSearchParams(window.location.search);
+      var sharedUsername = loginParams.get('username');
+      if (sharedUsername) document.getElementById('adminUsername').value = sharedUsername;
+      if (loginParams.get('shared') === '1') {
+        document.querySelector('.auth-header h1').textContent = 'Shared Page Login';
+        document.querySelector('.auth-header p').textContent = 'Sign in to open the shared event page.';
+        document.getElementById('registerViewButton').style.display = 'none';
+        document.querySelector('.owner-review').style.display = 'none';
+      }
+      (function(){
+        var loginViewButton = document.getElementById('loginViewButton');
+        var registerViewButton = document.getElementById('registerViewButton');
+        var loginSection = document.getElementById('loginSection');
+        var registerSection = document.getElementById('registerSection');
+        function showView(view){
+          var loginView = view === 'login';
+          loginSection.hidden = !loginView;
+          registerSection.hidden = loginView;
+          loginViewButton.classList.toggle('active', loginView);
+          registerViewButton.classList.toggle('active', !loginView);
+          loginViewButton.setAttribute('aria-selected', String(loginView));
+          registerViewButton.setAttribute('aria-selected', String(!loginView));
+        }
+        loginViewButton.addEventListener('click', function(){ showView('login'); });
+        registerViewButton.addEventListener('click', function(){ showView('register'); });
+      })();
+      document.getElementById('loginForm').addEventListener('submit', function(e){
+        e.preventDefault();
+        var username = document.getElementById('adminUsername').value.trim();
+        var password = document.getElementById('adminPassword').value.trim();
+        Promise.resolve(window.adminAuth.login(username, password)).then(function(success){
+          if(success){
+            var next = new URLSearchParams(window.location.search).get('next');
+            var allowedNext = next === 'green-room.html' || next === 'judge-mark-entry.html';
+            if (allowedNext) {
+              var destination = new URL(next, window.location.href);
+              var tenant = new URLSearchParams(window.location.search).get('tenant');
+              if (tenant) destination.searchParams.set('tenant', tenant);
+              if (new URLSearchParams(window.location.search).get('shared') === '1') destination.searchParams.set('shared', '1');
+              var access = new URLSearchParams(window.location.search).get('access');
+              if (access) destination.searchParams.set('access', access);
+              window.location.href = destination.href;
+            } else {
+              window.location.href = 'admin.html';
+            }
+            return;
+          }
+          var err = document.getElementById('loginError');
+          err.style.display = 'block';
+        });
+      });
+      document.getElementById('registerForm').addEventListener('submit', function(e){
+        e.preventDefault();
+        var button = document.getElementById('registerButton');
+        var error = document.getElementById('registerError');
+        button.disabled = true;
+        error.style.display = 'none';
+        window.adminAuth.register({
+          name: document.getElementById('tenantName').value,
+          place: document.getElementById('tenantPlace').value,
+          whatsapp: document.getElementById('tenantWhatsapp').value,
+          accountType: document.getElementById('tenantAccountType').value,
+          username: document.getElementById('tenantUsername').value,
+          password: document.getElementById('tenantPassword').value
+        }).then(function(result){
+          if(!result.success){ error.textContent = result.error; error.style.display = 'block'; button.disabled = false; return; }
+          return Promise.resolve(window.adminAuth.login(result.account.username, document.getElementById('tenantPassword').value)).then(function(success){
+            if(success){ window.location.href = 'admin.html'; return; }
+            error.textContent = 'Account created. Wait for owner approval before signing in.';
+            error.style.display = 'block';
+            button.disabled = false;
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
+
