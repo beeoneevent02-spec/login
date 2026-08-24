@@ -1,0 +1,368 @@
+:root {
+  --admin-ink: #07111f;
+  --admin-muted: #aebed7;
+  --admin-line: rgba(143, 180, 231, .2);
+  --admin-panel: linear-gradient(145deg, rgba(24, 39, 73, .94), rgba(11, 21, 43, .96));
+  --admin-gold: #f2bd4c;
+  --admin-gold-soft: #f5cc70;
+}
+
+body {
+  min-height: 100vh;
+  background: radial-gradient(circle at 12% 0%, rgba(36, 80, 139, .32), transparent 34%), linear-gradient(145deg, #070d1d, #0c1731 55%, #07101f) !important;
+  color: #eef2ff !important;
+}
+
+.ftco-section,
+.ftco-section.bg-light,
+.ftco-section.bg-dark,
+.services-section {
+  background: transparent !important;
+  padding: 58px 0 78px;
+}
+
+.navbar,
+.ftco_navbar,
+.ftco-navbar-light {
+  background: transparent !important;
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+}
+
+.navbar-brand,
+.navbar-dark .navbar-brand {
+  color: #fff !important;
+  letter-spacing: .06em;
+}
+
+.heading-section .subheading,
+.heading-section h2,
+.heading-section h2 span,
+.heading-section p,
+.ftco-section h1,
+.ftco-section h2,
+.ftco-section h3,
+.ftco-section h4,
+.ftco-section h5,
+.ftco-section h6,
+.ftco-section label,
+.ftco-section .card-title,
+.ftco-section .card-text {
+  color: #fff;
+}
+
+.heading-section .subheading,
+.page-header .eyebrow,
+.subheading {
+  color: var(--admin-gold-soft) !important;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+.heading-section h2,
+.page-header h2 {
+  font-size: clamp(2.5rem, 5vw, 4.4rem);
+  font-weight: 800;
+  letter-spacing: -.04em;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+
+.heading-section p,
+.page-header p,
+.ftco-section .lead,
+.ftco-section .text-muted,
+.ftco-section small,
+.ftco-section .card-text {
+  color: var(--admin-muted) !important;
+}
+
+.card h3,
+.admin-card h3,
+.schedule-admin-card h3,
+.bg-dark-panel h3,
+.panel-header h1,
+.speaker-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff !important;
+}
+
+.card h3::before,
+.admin-card h3::before,
+.schedule-admin-card h3::before,
+.bg-dark-panel h3::before,
+.panel-header h1::before,
+.speaker-card h3::before {
+  content: '';
+  flex: 0 0 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--admin-gold);
+  box-shadow: 0 0 0 5px rgba(242, 189, 76, .12);
+}
+
+.card,
+.admin-card,
+.schedule-admin-card,
+.schedule-day-card,
+.bg-dark-panel,
+.speaker-card,
+.usage-panel,
+.detail-card,
+.login-card,
+.table-responsive,
+.modal-content,
+.alert,
+.list-group-item,
+.panel,
+.form-section {
+  background: var(--admin-panel) !important;
+  border: 1px solid var(--admin-line) !important;
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .24), inset 0 1px rgba(255, 255, 255, .07);
+  color: #eef2ff;
+}
+
+.card-body,
+.admin-card .card-body,
+.schedule-admin-card-body {
+  padding: 30px;
+}
+
+.form-control,
+.form-control:focus,
+.custom-select,
+.custom-select:focus,
+select,
+textarea,
+input {
+  min-height: 46px;
+  background: rgba(3, 10, 26, .58) !important;
+  border: 1px solid rgba(146, 180, 226, .24) !important;
+  border-radius: 9px;
+  color: #fff !important;
+  box-shadow: none;
+}
+
+.form-control:focus,
+.custom-select:focus,
+select:focus,
+textarea:focus,
+input:focus {
+  border-color: rgba(242, 189, 76, .75) !important;
+  box-shadow: 0 0 0 3px rgba(242, 189, 76, .12) !important;
+}
+
+.form-control::placeholder,
+textarea::placeholder,
+input::placeholder {
+  color: rgba(220, 231, 246, .5) !important;
+}
+
+.form-group label,
+label {
+  color: #d9e5f6 !important;
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.table-responsive {
+  overflow: hidden;
+  padding: 0;
+}
+
+#participant-list {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+}
+
+#participant-list > li {
+  display: flex !important;
+  min-width: 0;
+  min-height: 190px;
+  flex-direction: column;
+  align-items: stretch !important;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding: 16px;
+  border-radius: 14px;
+}
+
+#participant-list > li > div:first-child {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 10px;
+}
+
+#participant-list > li > div:first-child > div {
+  min-width: 0;
+}
+
+#participant-list .participant-name {
+  display: block;
+  overflow-wrap: anywhere;
+  color: #fff;
+  font-size: 1rem;
+}
+
+#participant-list .small {
+  color: var(--admin-muted) !important;
+  line-height: 1.6;
+}
+
+#participant-list > li > div:nth-last-child(2) {
+  margin-left: 0 !important;
+}
+
+#participant-list > li > div:last-child {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+#participant-list > li > div:last-child .btn {
+  margin: 0 !important;
+  min-width: 38px;
+  padding: 8px 10px;
+}
+
+.table {
+  color: #f2f6ff;
+  margin-bottom: 0;
+}
+
+.table thead th {
+  padding: 15px 14px;
+  color: var(--admin-gold-soft);
+  border-bottom: 1px solid rgba(242, 189, 76, .22);
+  font-size: .78rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.table tbody tr {
+  background: rgba(255, 255, 255, .035);
+  transition: background .2s ease;
+}
+
+.table tbody tr:hover {
+  background: rgba(242, 189, 76, .08);
+}
+
+.table tbody td {
+  padding: 14px;
+  color: #f2f6ff;
+  border-top-color: rgba(145, 178, 220, .12);
+  vertical-align: middle;
+}
+
+.btn {
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.btn-primary,
+.btn-success,
+.btn-warning,
+.btn-info {
+  min-height: 44px;
+  border: none;
+  background: linear-gradient(135deg, #ff9d3d, #ff3d69) !important;
+  color: #fff !important;
+}
+
+.btn-primary:hover,
+.btn-success:hover,
+.btn-warning:hover,
+.btn-info:hover {
+  color: #fff !important;
+  filter: brightness(1.08);
+}
+
+.btn-secondary,
+.btn-outline-secondary,
+.btn-light {
+  min-height: 44px;
+  background: rgba(255, 255, 255, .08) !important;
+  border: 1px solid rgba(255, 255, 255, .18) !important;
+  color: #f3f6ff !important;
+}
+
+.btn-danger,
+.btn-outline-danger {
+  color: #ffd4d4 !important;
+}
+
+.dropdown-menu {
+  background: rgba(15, 19, 36, .98) !important;
+  border: 1px solid rgba(255, 255, 255, .1) !important;
+  border-radius: 8px !important;
+}
+
+.dropdown-item {
+  color: #fff !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background: rgba(242, 189, 76, .14) !important;
+}
+
+.progress,
+.progress-bar,
+.badge,
+.nav-pills .nav-link,
+.pagination .page-link {
+  border-radius: 8px;
+}
+
+.ftco-footer {
+  background: #050b18 !important;
+  border-top: 1px solid rgba(143, 180, 231, .14);
+}
+
+@media (max-width: 991px) {
+  .card-body,
+  .admin-card .card-body,
+  .schedule-admin-card-body {
+    padding: 26px;
+  }
+
+  #participant-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .ftco-section,
+  .ftco-section.bg-light,
+  .ftco-section.bg-dark,
+  .services-section {
+    padding: 42px 0 58px;
+  }
+
+  .heading-section h2,
+  .page-header h2 {
+    font-size: 2.4rem;
+  }
+
+  .card-body,
+  .admin-card .card-body,
+  .schedule-admin-card-body {
+    padding: 22px 18px;
+  }
+
+  #participant-list {
+    grid-template-columns: 1fr;
+  }
+}
